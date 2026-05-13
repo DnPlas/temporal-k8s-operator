@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       issue_number:
-        description: 'Issue number to analyze'
+        description: 'Issue number to analyze (e.g. 42)'
         required: true
-        type: number
+        type: string
 
 permissions:
   issues: write
@@ -63,7 +63,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const issueNumber = context.payload.issue?.number || ${{ github.event.inputs.issue_number || 0 }};
+            const issueNumber = context.payload.issue?.number
+              || parseInt('${{ github.event.inputs.issue_number }}'.replace(/\D/g, ''), 10);
             const { data: issue } = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
