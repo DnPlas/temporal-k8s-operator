@@ -312,14 +312,12 @@ jobs:
             } catch (e) {
               if (e.status !== 404) throw e;
             }
+            // Adding 'needs-copilot' triggers the copilot-assign.yml workflow,
+            // which attempts assignment via a user PAT with a Copilot seat.
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              labels: ['auto-resolution-requested']
+              labels: ['needs-copilot']
             });
-
-            // The Copilot coding agent cannot be assigned programmatically via the
-            // REST API — GitHub's public assignees endpoint silently drops it regardless
-            // of token type. Assignment must be done manually from the issue sidebar.
-            console.log(`Issue #${issueNumber} marked auto-resolution-requested. Assign Copilot manually from the issue sidebar to trigger the coding agent.`);
+            console.log(`Issue #${issueNumber} labelled needs-copilot — copilot-assign workflow will attempt assignment.`);
