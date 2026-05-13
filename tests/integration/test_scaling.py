@@ -7,7 +7,6 @@ import logging
 
 import pytest
 import pytest_asyncio
-from conftest import POSTGRESQL_CHANNEL, TEMPORAL_CHANNEL
 from helpers import (
     APP_NAME,
     APP_NAME_ADMIN,
@@ -21,6 +20,8 @@ from helpers import (
     scale,
 )
 from pytest_operator.plugin import OpsTest
+
+from conftest import POSTGRESQL_CHANNEL, TEMPORAL_CHANNEL
 
 ALL_SERVICES = ["temporal-k8s", "temporal-k8s-history", "temporal-k8s-matching", "temporal-k8s-worker"]
 ALL_CONFIG = ["frontend", "history", "matching", "worker"]
@@ -65,7 +66,7 @@ async def deploy(ops_test: OpsTest):
 
     async with ops_test.fast_forward():
         await ops_test.model.wait_for_idle(
-            apps=[APP_NAME_ADMIN, APP_NAME_UI, PGBOUNCER_APP_NAME] + ALL_SERVICES,
+            apps=[APP_NAME_ADMIN, APP_NAME_UI, PGBOUNCER_APP_NAME, *ALL_SERVICES],
             status="blocked",
             raise_on_blocked=False,
             timeout=1200,

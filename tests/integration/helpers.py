@@ -125,7 +125,8 @@ async def create_default_namespace(ops_test: OpsTest):
     """
     # Register default namespace from admin charm.
     action = (
-        await ops_test.model.applications[APP_NAME_ADMIN]
+        await ops_test.model
+        .applications[APP_NAME_ADMIN]
         .units[0]
         .run_action("cli", args="operator namespace create --namespace default --retention 3d")
     )
@@ -147,7 +148,7 @@ async def get_application_url(ops_test: OpsTest, application, port):
     Returns:
         Application URL of the form {address}:{port}
     """
-    status = await ops_test.model.get_status()  # noqa: F821
+    status = await ops_test.model.get_status()
     address = status["applications"][application].public_address
     return f"{address}:{port}"
 
@@ -165,7 +166,7 @@ async def get_unit_url(ops_test: OpsTest, application, unit, port, protocol="htt
     Returns:
         Unit URL of the form {protocol}://{address}:{port}
     """
-    status = await ops_test.model.get_status()  # noqa: F821
+    status = await ops_test.model.get_status()
     address = status["applications"][application]["units"][f"{application}/{unit}"]["address"]
     return f"{protocol}://{address}:{port}"
 

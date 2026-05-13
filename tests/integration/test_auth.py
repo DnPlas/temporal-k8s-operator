@@ -9,7 +9,6 @@ import logging
 import time
 
 import pytest
-from conftest import deploy  # noqa: F401, pylint: disable=W0611
 from helpers import (
     APP_NAME,
     perform_add_auth_rule_action,
@@ -21,6 +20,8 @@ from helpers import (
     scale,
 )
 from pytest_operator.plugin import OpsTest
+
+from conftest import deploy  # noqa: F401, pylint: disable=W0611
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +35,10 @@ class TestAuth:
         """Add OpenFGA relation and authorization model."""
         await ops_test.model.set_config({"update-status-hook-interval": "1m"})
 
-        await ops_test.model.applications[APP_NAME].set_config(
-            {"auth-enabled": "true", "auth-admin-groups": "red,green"}
-        )
+        await ops_test.model.applications[APP_NAME].set_config({
+            "auth-enabled": "true",
+            "auth-admin-groups": "red,green",
+        })
         await ops_test.model.deploy("openfga-k8s", channel="2.0/stable")
 
         async with ops_test.fast_forward():
@@ -70,7 +72,7 @@ class TestAuth:
 
             logger.info("running the create authorization model action")
             temporal_unit = ops_test.model.applications[APP_NAME].units[0]
-            with open("./temporal_auth_model.json", "r", encoding="utf-8") as model_file:
+            with open("./temporal_auth_model.json", encoding="utf-8") as model_file:
                 model_data = model_file.read()
 
                 # Remove whitespace and newlines from JSON object

@@ -11,7 +11,6 @@ import logging
 import os
 import re
 import socket
-from typing import Optional
 
 from charms.data_platform_libs.v0.data_interfaces import DatabaseRequires
 from charms.data_platform_libs.v0.s3 import S3Requirer
@@ -560,79 +559,69 @@ class TemporalK8SCharm(CharmBase):
             "log-level": "LOG_LEVEL",
         }
         context = {config_key: self.config[key] for key, config_key in options.items()}
-        context.update(
-            {
-                "LOG_OUTPUT_FILE": LOG_OUTPUT_FILE,
-                "LOG_FORMAT": LOG_FORMAT,
-            }
-        )
+        context.update({
+            "LOG_OUTPUT_FILE": LOG_OUTPUT_FILE,
+            "LOG_FORMAT": LOG_FORMAT,
+        })
         db_conn = self._state.database_connections["db"]
         visibility_conn = self._state.database_connections["visibility"]
-        context.update(
-            {
-                "DB_NAME": db_conn["dbname"],
-                "DB_HOST": db_conn["host"],
-                "DB_PORT": db_conn["port"],
-                "DB_USER": db_conn["user"],
-                "DB_PSWD": db_conn["password"],
-                "VISIBILITY_NAME": visibility_conn["dbname"],
-                "VISIBILITY_HOST": visibility_conn["host"],
-                "VISIBILITY_PORT": visibility_conn["port"],
-                "VISIBILITY_USER": visibility_conn["user"],
-                "VISIBILITY_PSWD": visibility_conn["password"],
-                "TEMPORAL_BROADCAST_ADDRESS": str(self.model.get_binding("peer").network.bind_address),
-                "NUM_HISTORY_SHARDS": self._state.num_history_shards,
-                "SQL_MAX_CONNS": self.config["persistence-max-conns"],
-                "SQL_MAX_IDLE_CONNS": self.config["persistence-max-idle-conns"],
-                "SQL_MAX_CONN_TIME": self.config["persistence-max-conn-time"],
-                "SQL_VIS_MAX_CONNS": self.config["visibility-max-conns"],
-                "SQL_VIS_MAX_IDLE_CONNS": self.config["visibility-max-idle-conns"],
-                "SQL_VIS_MAX_CONN_TIME": self.config["visibility-max-conn-time"],
-                "SQL_TLS_ENABLED": db_conn.get("tls", False),
-            }
-        )
+        context.update({
+            "DB_NAME": db_conn["dbname"],
+            "DB_HOST": db_conn["host"],
+            "DB_PORT": db_conn["port"],
+            "DB_USER": db_conn["user"],
+            "DB_PSWD": db_conn["password"],
+            "VISIBILITY_NAME": visibility_conn["dbname"],
+            "VISIBILITY_HOST": visibility_conn["host"],
+            "VISIBILITY_PORT": visibility_conn["port"],
+            "VISIBILITY_USER": visibility_conn["user"],
+            "VISIBILITY_PSWD": visibility_conn["password"],
+            "TEMPORAL_BROADCAST_ADDRESS": str(self.model.get_binding("peer").network.bind_address),
+            "NUM_HISTORY_SHARDS": self._state.num_history_shards,
+            "SQL_MAX_CONNS": self.config["persistence-max-conns"],
+            "SQL_MAX_IDLE_CONNS": self.config["persistence-max-idle-conns"],
+            "SQL_MAX_CONN_TIME": self.config["persistence-max-conn-time"],
+            "SQL_VIS_MAX_CONNS": self.config["visibility-max-conns"],
+            "SQL_VIS_MAX_IDLE_CONNS": self.config["visibility-max-idle-conns"],
+            "SQL_VIS_MAX_CONN_TIME": self.config["visibility-max-conn-time"],
+            "SQL_TLS_ENABLED": db_conn.get("tls", False),
+        })
 
         if self.config["auth-enabled"]:
             openfga = self._state.openfga
-            context.update(
-                {
-                    "AUTH_ENABLED": True,
-                    "OFGA_STORE_ID": openfga.get("store_id"),
-                    "OFGA_AUTH_MODEL_ID": openfga.get("auth_model_id"),
-                    "OFGA_API_HOST": openfga.get("address"),
-                    "OFGA_API_SCHEME": openfga.get("scheme"),
-                    "OFGA_SECRETS_BEARER_TOKEN": openfga.get("token"),
-                    "OFGA_API_PORT": openfga.get("port"),
-                    "AUTH_ADMIN_GROUPS": self.config["auth-admin-groups"],
-                    "AUTH_OPEN_ACCESS_NAMESPACES": self.config["auth-open-access-namespaces"],
-                    "AUTH_GOOGLE_CLIENT_ID": self.config["auth-google-client-id"],
-                }
-            )
+            context.update({
+                "AUTH_ENABLED": True,
+                "OFGA_STORE_ID": openfga.get("store_id"),
+                "OFGA_AUTH_MODEL_ID": openfga.get("auth_model_id"),
+                "OFGA_API_HOST": openfga.get("address"),
+                "OFGA_API_SCHEME": openfga.get("scheme"),
+                "OFGA_SECRETS_BEARER_TOKEN": openfga.get("token"),
+                "OFGA_API_PORT": openfga.get("port"),
+                "AUTH_ADMIN_GROUPS": self.config["auth-admin-groups"],
+                "AUTH_OPEN_ACCESS_NAMESPACES": self.config["auth-open-access-namespaces"],
+                "AUTH_GOOGLE_CLIENT_ID": self.config["auth-google-client-id"],
+            })
 
         http_proxy = os.environ.get("JUJU_CHARM_HTTP_PROXY")
         https_proxy = os.environ.get("JUJU_CHARM_HTTPS_PROXY")
         no_proxy = os.environ.get("JUJU_CHARM_NO_PROXY")
 
         if http_proxy or https_proxy:
-            context.update(
-                {
-                    "HTTP_PROXY": http_proxy,
-                    "HTTPS_PROXY": https_proxy,
-                    "NO_PROXY": no_proxy,
-                }
-            )
+            context.update({
+                "HTTP_PROXY": http_proxy,
+                "HTTPS_PROXY": https_proxy,
+                "NO_PROXY": no_proxy,
+            })
 
         if self._state.s3:
-            context.update(
-                {
-                    "ARCHIVAL_ENABLED": True,
-                    "ARCHIVAL_BUCKET_REGION": self._state.s3.get("region"),
-                    "ARCHIVAL_ENDPOINT": self._state.s3.get("endpoint"),
-                    "ARCHIVAL_URI_STYLE": self._state.s3.get("uri_style"),
-                    "AWS_ACCESS_KEY_ID": self._state.s3.get("aws_access_key_id"),
-                    "AWS_SECRET_ACCESS_KEY": self._state.s3.get("aws_secret_access_key"),
-                }
-            )
+            context.update({
+                "ARCHIVAL_ENABLED": True,
+                "ARCHIVAL_BUCKET_REGION": self._state.s3.get("region"),
+                "ARCHIVAL_ENDPOINT": self._state.s3.get("endpoint"),
+                "ARCHIVAL_URI_STYLE": self._state.s3.get("uri_style"),
+                "AWS_ACCESS_KEY_ID": self._state.s3.get("aws_access_key_id"),
+                "AWS_SECRET_ACCESS_KEY": self._state.s3.get("aws_secret_access_key"),
+            })
 
         # Handle frontend TLS
         self._handle_frontend_tls()
@@ -813,10 +802,10 @@ class TemporalK8SCharm(CharmBase):
     def _is_private_key_update_required(self, private_key: PrivateKey) -> bool:
         return self._get_existing_private_key() != private_key
 
-    def _get_existing_certificate(self) -> Optional[Certificate]:
+    def _get_existing_certificate(self) -> Certificate | None:
         return self._get_stored_certificate() if self._certificate_is_stored() else None
 
-    def _get_existing_private_key(self) -> Optional[PrivateKey]:
+    def _get_existing_private_key(self) -> PrivateKey | None:
         return self._get_stored_private_key() if self._private_key_is_stored() else None
 
     def _certificate_is_stored(self) -> bool:
