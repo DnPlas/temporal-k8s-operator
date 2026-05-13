@@ -138,6 +138,14 @@ jobs:
               '  "risk_level": "low|medium|high",',
               '  "summary": "2-3 sentence plain-language summary of what the issue is about",',
               '  "time_estimate_pulses": <number, where 1 pulse = 2 weeks. Use 0.25 for a few hours, 0.5 for ~1 week, 1 for a full sprint, etc.>,',
+              '  "steps_to_reproduce": "present|missing|not_applicable (not_applicable for docs, feature requests, or issues where reproduction steps are irrelevant)",',
+              '  "severity": {',
+              '    "level": "critical|high|medium|low",',
+              '    "affects_db": true|false,',
+              '    "affects_integrations": true|false,',
+              '    "causes_error_state": true|false,',
+              '    "has_workaround": true|false',
+              '  },',
               '  "similar_patterns": ["patterns from REPO_PATTERNS.md that match"],',
               '  "affected_areas": ["predicted files or components"]',
               '}'
@@ -213,6 +221,19 @@ jobs:
             const pulses = analysis.time_estimate_pulses;
             const pulseLabel = pulses < 1 ? `${pulses} pulses (~${Math.round(pulses * 2)} week${pulses * 2 === 1 ? '' : 's'})` : `${pulses} pulse${pulses === 1 ? '' : 's'} (~${pulses * 2} weeks)`;
 
+            const sev = analysis.severity;
+            const severityLines = [
+              `**Severity:** ${sev.level}`,
+              `- Affects database: ${sev.affects_db ? 'Yes' : 'No'}`,
+              `- Affects integrations: ${sev.affects_integrations ? 'Yes' : 'No'}`,
+              `- Causes charm error state: ${sev.causes_error_state ? 'Yes' : 'No'}`,
+              `- Has workaround: ${sev.has_workaround ? 'Yes' : 'No'}`
+            ].join('\n');
+
+            const reproLine = analysis.steps_to_reproduce === 'not_applicable'
+              ? null
+              : `**Steps to reproduce:** ${analysis.steps_to_reproduce === 'present' ? 'Included' : 'Missing - please add reproduction steps'}`;
+
             const body = [
               MARKER,
               '## AI Pre-Analysis',
@@ -221,9 +242,11 @@ jobs:
               '',
               `**Complexity:** ${analysis.complexity}`,
               `**Confidence:** ${analysis.confidence} (${confidenceRange})`,
-              `**Risk Level:** ${analysis.risk_level}`,
               `**Estimated effort:** ${pulseLabel}`,
               `**Auto-Resolve Eligible:** ${analysis.auto_resolve_eligible ? 'Yes' : 'No'}`,
+              ...(reproLine ? [reproLine] : []),
+              '',
+              severityLines,
               '',
               '### Matching Historical Patterns',
               patternsMatched,
