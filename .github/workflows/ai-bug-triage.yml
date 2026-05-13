@@ -190,17 +190,14 @@ jobs:
             const analysis = JSON.parse(Buffer.from(process.env.ANALYSIS_B64, 'base64').toString());
             const issueNumber = ${{ matrix.issue }};
 
-            // Two labels only: priority (for filtering) + review status (for action).
-            // Auto-eligible issues get 'auto-resolution-requested' swapped in by the next step.
-            const priorityLabel = `ai:priority-${analysis.priority}`;
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              labels: [priorityLabel, 'needs-human-review']
+              labels: ['needs-human-review']
             });
 
-            // Idempotent comment: update the existing AI analysis comment if one exists,
+            // Idempotent comment: update existing AI analysis comment if one exists,
             // otherwise create a new one. Prevents duplicate comments on re-runs.
             const MARKER = '<!-- ai-triage-analysis -->';
             const { data: comments } = await github.rest.issues.listComments({
@@ -211,29 +208,20 @@ jobs:
             });
             const existing = comments.find(c => c.body.includes(MARKER));
 
-            const autoResolveEmoji = analysis.auto_resolve_eligible ? '✅' : '🚫';
             const confidenceRange = analysis.confidence === 'high' ? '90%+' : analysis.confidence === 'medium' ? '60-90%' : '<60%';
-            const rulesApplied = analysis.context_rules_applied.map(r => `- ✅ ${r}`).join('\n');
             const patternsMatched = analysis.similar_patterns.length > 0
-              ? analysis.similar_patterns.map(p => `- 🔍 ${p}`).join('\n')
+              ? analysis.similar_patterns.map(p => `- ${p}`).join('\n')
               : '- No exact pattern match (new pattern type)';
             const affectedAreas = analysis.affected_areas.map(a => `- \`${a}\``).join('\n');
-            const assigneeSection = analysis.recommended_assignee
-              ? `### Recommended Assignee\n@${analysis.recommended_assignee}\n\n` : '';
 
             const body = [
               MARKER,
-              '## 🤖 AI Pre-Analysis (Context-Aware)',
+              '## AI Pre-Analysis',
               '',
               `**Complexity:** ${analysis.complexity}`,
-              `**Category:** ${analysis.category}`,
               `**Confidence:** ${analysis.confidence} (${confidenceRange})`,
-              `**Priority Recommendation:** ${analysis.priority}`,
               `**Risk Level:** ${analysis.risk_level}`,
-              `**Auto-Resolve Eligible:** ${autoResolveEmoji} ${analysis.auto_resolve_eligible ? 'Yes' : 'No'}`,
-              '',
-              '### Applied Repository Rules',
-              rulesApplied,
+              `**Auto-Resolve Eligible:** ${analysis.auto_resolve_eligible ? 'Yes' : 'No'}`,
               '',
               '### Matching Historical Patterns',
               patternsMatched,
@@ -247,12 +235,11 @@ jobs:
               '### Predicted Affected Areas',
               affectedAreas,
               '',
-              assigneeSection +
               '---',
               '*This analysis was automatically generated using repository-specific context.*',
               '*Context files: TRIAGING_RULES.md, REPO_PATTERNS.md, DECISION_HISTORY.json*',
               '',
-              '**Human review recommended.** Override labels if AI assessment is incorrect — your corrections help improve future analyses.'
+              '**Human review recommended.** Override labels if AI assessment is incorrect - your corrections help improve future analyses.'
             ].join('\n');
 
             if (existing) {
