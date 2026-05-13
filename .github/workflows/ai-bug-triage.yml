@@ -181,18 +181,14 @@ jobs:
             const analysis = JSON.parse(process.env.ANALYSIS_JSON);
             const issueNumber = ${{ matrix.issue }};
 
-            const labels = [
-              `ai-complexity:${analysis.complexity}`,
-              `ai-category:${analysis.category}`,
-              `ai-confidence:${analysis.confidence}`,
-              `ai-priority:${analysis.priority}`,
-              `ai-risk:${analysis.risk_level}`
-            ];
+            // Two labels only: priority (for filtering) + review status (for action).
+            // Auto-eligible issues get 'auto-resolution-requested' added in the next step.
+            const priorityLabel = `ai:priority-${analysis.priority}`;
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              labels
+              labels: [priorityLabel, 'needs-human-review']
             });
 
             const autoResolveEmoji = analysis.auto_resolve_eligible ? '✅' : '🚫';
@@ -274,46 +270,27 @@ jobs:
               return;
             }
 
-            const comment = [
-              '## 🤖 Auto-Resolution Request',
-              '',
-              'This issue has been identified as eligible for automatic resolution.',
-              '',
-              '**Proposed Approach:**',
-              analysis.solution_approach,
-              '',
-              '**Safety Checks Passed:**',
-              `- ✅ High confidence (${analysis.confidence})`,
-              `- ✅ Low complexity (${analysis.complexity})`,
-              `- ✅ Low risk (${analysis.risk_level})`,
-              '- ✅ No blocking labels',
-              '- ✅ Matches auto-resolve patterns',
-              '',
-              '@copilot please fix this issue following the solution approach above.',
-              '',
-              '**Requirements:**',
-              '- Keep changes minimal and focused',
-              '- Run all tests before creating PR',
-              '- Add tests if needed',
-              '- Follow existing code style',
-              '- Update documentation if needed',
-              '',
-              'Once fixed, create a PR with prefix `[AI-Auto]` in the title and reference this issue.',
-              '',
-              '---',
-              '*A team member will review the PR before merge.*'
-            ].join('\n');
-
-            await github.rest.issues.createComment({
+            // Swap labels: remove needs-human-review, add auto-resolution-requested.
+            await github.rest.issues.removeLabel({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              body: comment
+              name: 'needs-human-review'
             });
-
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
               labels: ['auto-resolution-requested']
             });
+
+            // Assigning to 'copilot' is what actually triggers the coding agent.
+            // A comment mention (@copilot) has no effect.
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              assignees: ['copilot']
+            });
+
+            console.log(`Issue #${issueNumber} assigned to Copilot for auto-resolution`);
