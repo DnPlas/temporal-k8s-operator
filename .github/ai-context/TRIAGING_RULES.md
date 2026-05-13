@@ -73,12 +73,16 @@ These rules are non-negotiable for any automated or AI-assisted changes:
 
 Severity must be derived strictly from the four factors below. Do not assess it independently.
 
-| factors                                          | level    |
-|--------------------------------------------------|----------|
-| (affects_db OR causes_error_state) AND no workaround | critical |
-| any factor true AND no workaround                | high     |
-| any factor true AND workaround exists            | medium   |
-| no factors true                                  | low      |
+| factors                                                          | level    |
+|------------------------------------------------------------------|----------|
+| (affects_db OR causes_error_state) AND no workaround             | critical |
+| (affects_db OR causes_error_state) AND workaround exists         | high     |
+| affects_integrations only AND no workaround                      | high     |
+| affects_integrations only AND workaround exists                  | medium   |
+| no factors true                                                  | low      |
+
+affects_db and causes_error_state always produce at minimum **high**, regardless of workaround.
+A workaround reduces urgency but not severity for DB or error-state impact.
 
 ### Factor definitions
 - **affects_db**: issue impacts PostgreSQL relations, visibility DB, or data persistence

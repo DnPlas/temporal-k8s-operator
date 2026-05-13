@@ -144,7 +144,7 @@ jobs:
               '    "affects_integrations": true|false,',
               '    "causes_error_state": true|false,',
               '    "has_workaround": true|false,',
-              '    "level": "derive this strictly from the factors above: critical = (affects_db OR causes_error_state) AND NOT has_workaround; high = any factor true AND NOT has_workaround; medium = any factor true AND has_workaround; low = no factors true"',
+              '    "level": "derive this strictly from the factors above using this priority order: (1) critical = (affects_db OR causes_error_state) AND NOT has_workaround; (2) high = (affects_db OR causes_error_state) AND has_workaround, OR (affects_integrations only) AND NOT has_workaround; (3) medium = affects_integrations only AND has_workaround; (4) low = no factors true. affects_db and causes_error_state always produce at minimum high, regardless of workaround."',
               '  },',
               '  "similar_patterns": ["patterns from REPO_PATTERNS.md that match"],',
               '  "affected_areas": ["predicted files or components"]',
