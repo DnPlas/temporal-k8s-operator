@@ -314,13 +314,23 @@ jobs:
               labels: ['auto-resolution-requested']
             });
 
-            // Assigning to 'copilot' is what actually triggers the coding agent.
-            // A comment mention (@copilot) has no effect.
-            await github.rest.issues.addAssignees({
+            // Assigning to 'copilot' triggers the coding agent.
+            // addAssignees silently drops unknown usernames and returns 201 with an
+            // empty assignees array — log the result so we can detect that case.
+            const assignResult = await github.rest.issues.addAssignees({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
               assignees: ['copilot']
             });
 
-            console.log(`Issue #${issueNumber} assigned to Copilot for auto-resolution`);
+            const assigned = assignResult.data.assignees.map(a => a.login);
+            if (assigned.includes('copilot')) {
+              console.log(`Issue #${issueNumber} successfully assigned to Copilot`);
+            } else {
+              core.warning(
+                `Copilot assignment silently failed — returned assignees: [${assigned.join(', ')}]. ` +
+                `Check that the Copilot coding agent is enabled for this repository ` +
+                `(Settings → Copilot → Coding agent) and that the plan supports it.`
+              );
+            }
