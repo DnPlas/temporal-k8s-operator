@@ -19,8 +19,5 @@ jobs:
       charmcraft-channel: latest/stable
       modules: '["test_charm.py", "test_auth.py", "test_scaling.py", "test_server_upgrade.py", "test_upgrades.py", "test_pgbouncer.py", "test_host_info.py"]'
       juju-channel: 3.6/stable
-      self-hosted-runner: true
-      self-hosted-runner-label: large
-      self-hosted-runner-arch: x64
-      self-hosted-runner-image: noble
+      self-hosted-runner: false
       test-timeout: 60
