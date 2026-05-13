@@ -321,11 +321,11 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              assignees: ['copilot']
+              assignees: ['Copilot']
             });
 
             const assigned = assignResult.data.assignees.map(a => a.login);
-            if (assigned.includes('copilot')) {
+            if (assigned.map(l => l.toLowerCase()).includes('copilot')) {
               console.log(`Issue #${issueNumber} successfully assigned to Copilot`);
             } else {
               core.warning(
