@@ -143,8 +143,9 @@ jobs:
               '    "affects_db": true|false,',
               '    "affects_integrations": true|false,',
               '    "causes_error_state": true|false,',
+              '    "affects_workload": true|false (true if the Temporal workload itself fails core operations: scheduling workflows, running workers, executing activities, or processing signals/timers),',
               '    "has_workaround": true|false,',
-              '    "level": "derive this strictly from the factors above using this priority order: (1) critical = (affects_db OR causes_error_state) AND NOT has_workaround; (2) high = (affects_db OR causes_error_state) AND has_workaround, OR (affects_integrations only) AND NOT has_workaround; (3) medium = affects_integrations only AND has_workaround; (4) low = no factors true. affects_db and causes_error_state always produce at minimum high, regardless of workaround."',
+              '    "level": "derive strictly from the factors using this priority order: (1) critical = (affects_db OR causes_error_state OR affects_workload) AND NOT has_workaround; (2) high = (affects_db OR causes_error_state OR affects_workload) AND has_workaround, OR (affects_integrations only) AND NOT has_workaround; (3) medium = affects_integrations only AND has_workaround; (4) low = no factors true. affects_db, causes_error_state, and affects_workload always produce at minimum high regardless of workaround."',
               '  },',
               '  "similar_patterns": ["patterns from REPO_PATTERNS.md that match"],',
               '  "affected_areas": ["predicted files or components"]',
@@ -230,6 +231,7 @@ jobs:
               `- Affects database: ${sev.affects_db ? 'Yes' : 'No'}`,
               `- Affects integrations: ${sev.affects_integrations ? 'Yes' : 'No'}`,
               `- Causes charm error state: ${sev.causes_error_state ? 'Yes' : 'No'}`,
+              `- Affects workload operations: ${sev.affects_workload ? 'Yes' : 'No'}`,
               `- Has workaround: ${sev.has_workaround ? 'Yes' : 'No'}`
             ].join('\n');
 

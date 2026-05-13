@@ -73,21 +73,22 @@ These rules are non-negotiable for any automated or AI-assisted changes:
 
 Severity must be derived strictly from the four factors below. Do not assess it independently.
 
-| factors                                                          | level    |
-|------------------------------------------------------------------|----------|
-| (affects_db OR causes_error_state) AND no workaround             | critical |
-| (affects_db OR causes_error_state) AND workaround exists         | high     |
-| affects_integrations only AND no workaround                      | high     |
-| affects_integrations only AND workaround exists                  | medium   |
-| no factors true                                                  | low      |
+| factors                                                                          | level    |
+|----------------------------------------------------------------------------------|----------|
+| (affects_db OR causes_error_state OR affects_workload) AND no workaround         | critical |
+| (affects_db OR causes_error_state OR affects_workload) AND workaround exists     | high     |
+| affects_integrations only AND no workaround                                      | high     |
+| affects_integrations only AND workaround exists                                  | medium   |
+| no factors true                                                                  | low      |
 
-affects_db and causes_error_state always produce at minimum **high**, regardless of workaround.
-A workaround reduces urgency but not severity for DB or error-state impact.
+affects_db, causes_error_state, and affects_workload always produce at minimum **high**, regardless
+of workaround. A workaround reduces urgency but not severity for these impact types.
 
 ### Factor definitions
 - **affects_db**: issue impacts PostgreSQL relations, visibility DB, or data persistence
 - **affects_integrations**: issue breaks a required relation (admin, postgresql) or an optional one (openfga, s3, ui, ingress)
 - **causes_error_state**: charm enters Error or Blocked status as a result
+- **affects_workload**: the Temporal workload itself fails core operations — scheduling workflows, running workers, executing activities, processing signals or timers
 - **has_workaround**: a documented manual workaround exists that restores functionality
 
 ---
