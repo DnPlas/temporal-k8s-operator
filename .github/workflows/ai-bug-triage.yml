@@ -322,8 +322,3 @@ jobs:
               labels: ['needs-copilot']
             });
 
-      - name: Assign Copilot (if eligible)
-        if: steps.autofix.outputs.eligible == 'true'
-        run: gh issue edit "${{ matrix.issue }}" --add-assignee "Copilot" --repo "${{ github.repository }}"
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
