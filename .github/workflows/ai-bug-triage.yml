@@ -107,22 +107,27 @@ jobs:
             const issueBody = issue.body || 'No description provided';
             const existingLabels = issue.labels.map(l => l.name);
 
+            // GitHub Models caps gpt-4o at 8000 tokens (~32000 chars).
+            // Truncate each variable-length section so the total stays safe.
+            const truncate = (text, maxChars) =>
+              text.length > maxChars ? text.slice(0, maxChars) + '\n... [truncated]' : text;
+
             const prompt = [
               'You are analyzing a bug for the Temporal Kubernetes Operator repository.',
               'Use the following repository-specific context to inform your analysis:',
               '',
               '=== REPOSITORY TRIAGING RULES ===',
-              process.env.CONTEXT_RULES,
+              truncate(process.env.CONTEXT_RULES, 6000),
               '',
               '=== HISTORICAL PATTERNS ===',
-              process.env.CONTEXT_PATTERNS,
+              truncate(process.env.CONTEXT_PATTERNS, 6000),
               '',
               '=== PAST TEAM CORRECTIONS ===',
               process.env.CONTEXT_HISTORY,
               '',
               '=== NEW ISSUE TO ANALYZE ===',
               `Title: ${issueTitle}`,
-              `Body: ${issueBody}`,
+              `Body: ${truncate(issueBody, 3000)}`,
               `Existing Labels: ${existingLabels.join(', ')}`,
               '',
               'Analyze this issue and respond ONLY with valid JSON (no markdown, no preamble):',
