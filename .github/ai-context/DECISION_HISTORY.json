@@ -1,9 +1,50 @@
 {
-  "corrections": [],
-  "patterns_learned": {},
+  "corrections": [
+    {
+      "date": "2026-05-13",
+      "scope": "severity",
+      "decision": "Severity level must be derived strictly from the four boolean factors, never assessed independently.",
+      "rule": "critical = (affects_db OR causes_error_state) AND NOT has_workaround; high = any factor true AND NOT has_workaround; medium = any factor true AND has_workaround; low = no factors true.",
+      "trigger": "Issue #2 was assessed as severity:high with all four factors false, which is a contradiction."
+    },
+    {
+      "date": "2026-05-13",
+      "scope": "labels",
+      "decision": "Only two labels: needs-human-review (default) and needs-copilot (auto-eligible). No ai-priority, ai-category, ai-complexity, ai-confidence, or ai-risk labels.",
+      "rule": "Apply needs-human-review to all issues by default. Swap to needs-copilot only when all auto-eligibility criteria are met.",
+      "trigger": "Five labels per issue made filtering impractical for the team."
+    },
+    {
+      "date": "2026-05-13",
+      "scope": "copilot-assignment",
+      "decision": "Copilot coding agent cannot be assigned programmatically via any GitHub API surface (REST, GraphQL, gh CLI) regardless of token type.",
+      "rule": "needs-copilot label is the queue signal. A human assigns Copilot from the issue sidebar to trigger the agent.",
+      "trigger": "All programmatic assignment attempts failed: GITHUB_TOKEN silently dropped, user PAT silently dropped, gh CLI returned 'Bot does not have access to the repository (replaceActorsForAssignable)'."
+    },
+    {
+      "date": "2026-05-13",
+      "scope": "steps_to_reproduce",
+      "decision": "steps_to_reproduce must be not_applicable for documentation issues, feature requests, and platform/display bugs (e.g. Charmhub metadata issues) where local reproduction is irrelevant to the fix.",
+      "rule": "Only use present or missing for issues where a developer would need to reproduce the problem locally to investigate or fix it.",
+      "trigger": "Unnecessary reproduction step requests on non-reproducible issue types."
+    },
+    {
+      "date": "2026-05-13",
+      "scope": "comment-format",
+      "decision": "AI analysis comment must not include: emojis, em dashes, category field, priority field, Applied Repository Rules section, or Recommended Assignee section.",
+      "rule": "Comment sections: summary, key fields (complexity/confidence/effort/auto-resolve/repro), severity breakdown, matching patterns, affected areas.",
+      "trigger": "Comment was too noisy for practical use; recommended assignee suggested non-existent teams."
+    }
+  ],
+  "patterns_learned": {
+    "severity_derivation": "Always derive severity.level from the boolean factors. If all factors are false, level must be low regardless of issue description.",
+    "steps_to_reproduce_not_applicable": "Charmhub display bugs, metadata issues, documentation gaps, and feature requests do not need reproduction steps.",
+    "pulse_calibration": "0.25 = a few hours; 0.5 = ~1 week; 1 = full sprint (2 weeks); 2+ = multi-sprint. Linting/tooling migrations are typically 0.25-0.5. Relation handler bugs are typically 0.5-1. New relation types are typically 1-2.",
+    "auto_resolve_scope": "Only documentation typos, comment-only changes, linting fixes, and patch version bumps are safe for auto-resolution. Never src/charm.py, src/state.py, src/relations/, metadata.yaml, or templates/."
+  },
   "metadata": {
     "created": "2026-05-13",
     "last_updated": "2026-05-13",
-    "version": "1.0"
+    "version": "1.1"
   }
 }

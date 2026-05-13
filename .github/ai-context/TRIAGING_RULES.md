@@ -6,6 +6,8 @@ This is a **Python Juju Charmed Operator** (not a Go/kubebuilder operator) that 
 the Temporal workflow engine on Kubernetes. It uses the `ops` framework, Pebble container management,
 and Juju relations for service integration.
 
+---
+
 ## Team Guardrails (Hard Rules)
 
 These rules are non-negotiable for any automated or AI-assisted changes:
@@ -25,6 +27,8 @@ These rules are non-negotiable for any automated or AI-assisted changes:
 
 4. **PRs must include manual testing steps.** Every PR description must contain
    explicit steps a reviewer can follow to manually verify the fix.
+
+---
 
 ## Complexity Guidelines
 
@@ -63,35 +67,72 @@ These rules are non-negotiable for any automated or AI-assisted changes:
 - Breaking changes to relation interfaces used by other charms
 - Schema migration failures
 
-## Priority Rules
+---
 
-### Highest (Work in next sprint)
-- Charm stuck in error/blocked state with no workaround
-- Security vulnerabilities
-- Data loss or corruption risk
-- Blocking issues for track releases (e.g. 1.23/stable)
+## Severity Assessment
 
-### High
-- Integration breakage with related charms (temporal-admin-k8s, temporal-ui-k8s)
-- PostgreSQL relation failures (blocks all functionality)
-- Pebble service crashes or restart loops
-- Issues affecting multiple users in production deployments
+Severity must be derived strictly from the four factors below. Do not assess it independently.
 
-### Medium
-- Non-critical relation failures with workarounds
-- Feature enhancements requested by users
-- Test flakiness in integration tests
-- Documentation gaps that block adoption
+| factors                                          | level    |
+|--------------------------------------------------|----------|
+| (affects_db OR causes_error_state) AND no workaround | critical |
+| any factor true AND no workaround                | high     |
+| any factor true AND workaround exists            | medium   |
+| no factors true                                  | low      |
 
-### Low
-- Nice-to-have configuration options
-- Cosmetic log message improvements
-- Low-impact bugs with easy workarounds
+### Factor definitions
+- **affects_db**: issue impacts PostgreSQL relations, visibility DB, or data persistence
+- **affects_integrations**: issue breaks a required relation (admin, postgresql) or an optional one (openfga, s3, ui, ingress)
+- **causes_error_state**: charm enters Error or Blocked status as a result
+- **has_workaround**: a documented manual workaround exists that restores functionality
 
-### Lowest
-- Future architectural considerations
-- Research items
-- Long-term improvements
+---
+
+## Steps to Reproduce Assessment
+
+- **present**: issue body includes clear reproduction steps
+- **missing**: issue is a bug report but lacks reproduction steps (flag this to the reporter)
+- **not_applicable**: use for documentation issues, feature requests, Charmhub display/metadata
+  bugs, or any issue where reproducing locally is not relevant to the fix
+
+---
+
+## Effort Estimation (Pulses)
+
+1 pulse = 2 weeks (one sprint).
+
+| estimate | meaning                          |
+|----------|----------------------------------|
+| 0.25     | a few hours to 1 day             |
+| 0.5      | roughly 1 week                   |
+| 1        | one full sprint                  |
+| 2        | two sprints (multi-sprint work)  |
+| 3+       | large feature or architectural change |
+
+---
+
+## Label System
+
+Only two labels are applied automatically. Do not introduce others without team agreement.
+
+| label               | meaning                                                       |
+|---------------------|---------------------------------------------------------------|
+| `needs-human-review` | default for all issues; a human must assess and act          |
+| `needs-copilot`      | AI assessed as auto-eligible; assign Copilot from the sidebar |
+
+### Copilot assignment
+GitHub does not expose a public API for triggering the Copilot coding agent programmatically.
+The `needs-copilot` label is the queue signal. A human opens the issue, clicks Assignees in
+the sidebar, and selects Copilot. The agent then creates a PR automatically.
+
+### Auto-resolve eligibility criteria (all must be true)
+- `auto_resolve_eligible: true` from AI analysis
+- `confidence: high`
+- `complexity: trivial` or `low`
+- `risk_level: low`
+- No blocking labels present: `security`, `breaking-change`, `no-ai-resolution`, `needs-discussion`
+
+---
 
 ## High-Risk Code Areas
 
@@ -105,6 +146,8 @@ Files requiring extra scrutiny (human review mandatory):
 - `templates/config.jinja` — Temporal server config; incorrect output causes service failure
 - `templates/dynamic_config.jinja` — Runtime Temporal config
 - `lib/charms/temporal_k8s/` — Published charm library; API changes affect consumers
+
+---
 
 ## Category-Specific Rules
 
@@ -137,12 +180,15 @@ Files requiring extra scrutiny (human review mandatory):
 - Low complexity across the board
 - No test required
 - No manual testing steps required (docs PRs only)
+- steps_to_reproduce: not_applicable
 
 ### Testing (tests/)
 - Unit test additions: Low complexity
 - Scenario test additions: Low-Medium complexity
 - Integration test fixes: Medium complexity
 - Test infrastructure changes (conftest.py, helpers.py): Medium complexity
+
+---
 
 ## Auto-Resolution Eligibility
 
@@ -159,9 +205,10 @@ NOT safe for auto-resolution (human review required):
 - Any change to `metadata.yaml`
 - Any change to `templates/`
 - Any change to `lib/charms/temporal_k8s/`
-- RBAC/permission changes
 - Pebble layer changes
 - Changes that touch test assertions
+
+---
 
 ## PR Requirements Checklist
 
