@@ -8,6 +8,11 @@ import logging
 
 import pytest
 import requests
+from pytest_operator.plugin import OpsTest
+from temporalio.client import Client
+from temporalio.worker import Worker
+
+from conftest import deploy  # noqa: F401
 from helpers import (
     APP_NAME,
     APP_NAME_UI,
@@ -16,12 +21,7 @@ from helpers import (
     run_sample_workflow,
     simulate_charm_crash,
 )
-from pytest_operator.plugin import OpsTest
 from temporal_client.workflows import GreetingWorkflow
-from temporalio.client import Client
-from temporalio.worker import Worker
-
-from conftest import deploy  # noqa: F401, pylint: disable=W0611
 
 logger = logging.getLogger(__name__)
 

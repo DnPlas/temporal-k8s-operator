@@ -9,6 +9,9 @@ import logging
 import time
 
 import pytest
+from pytest_operator.plugin import OpsTest
+
+from conftest import deploy  # noqa: F401
 from helpers import (
     APP_NAME,
     perform_add_auth_rule_action,
@@ -19,9 +22,6 @@ from helpers import (
     run_sample_workflow,
     scale,
 )
-from pytest_operator.plugin import OpsTest
-
-from conftest import deploy  # noqa: F401, pylint: disable=W0611
 
 logger = logging.getLogger(__name__)
 

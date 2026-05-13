@@ -14,10 +14,11 @@ from pathlib import Path
 import tenacity
 import yaml
 from pytest_operator.plugin import OpsTest
-from temporal_client.activities import say_hello
-from temporal_client.workflows import SayHello
 from temporalio.client import Client, WorkflowFailureError
 from temporalio.worker import Worker
+
+from temporal_client.activities import say_hello
+from temporal_client.workflows import SayHello
 
 try:
     import temporal_sdk_bridge

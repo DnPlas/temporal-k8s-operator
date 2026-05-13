@@ -54,6 +54,9 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["D1", "D417", "S"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["helpers", "conftest", "temporal_client"]
+
 [tool.ruff.lint.flake8-copyright]
 author = "Canonical Ltd."
 notice-rgx = "Copyright\\s\\d{4}([-,]\\d{4})*\\s+"

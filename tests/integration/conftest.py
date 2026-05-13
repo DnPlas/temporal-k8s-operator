@@ -8,6 +8,9 @@ import logging
 from pathlib import Path
 
 import pytest_asyncio
+from pytest import FixtureRequest
+from pytest_operator.plugin import OpsTest
+
 from helpers import (
     APP_NAME,
     APP_NAME_ADMIN,
@@ -16,8 +19,6 @@ from helpers import (
     create_default_namespace,
     perform_temporal_integrations,
 )
-from pytest import FixtureRequest
-from pytest_operator.plugin import OpsTest
 
 logger = logging.getLogger(__name__)
 

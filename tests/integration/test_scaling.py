@@ -7,6 +7,9 @@ import logging
 
 import pytest
 import pytest_asyncio
+from pytest_operator.plugin import OpsTest
+
+from conftest import POSTGRESQL_CHANNEL, TEMPORAL_CHANNEL
 from helpers import (
     APP_NAME,
     APP_NAME_ADMIN,
@@ -19,9 +22,6 @@ from helpers import (
     run_sample_workflow,
     scale,
 )
-from pytest_operator.plugin import OpsTest
-
-from conftest import POSTGRESQL_CHANNEL, TEMPORAL_CHANNEL
 
 ALL_SERVICES = ["temporal-k8s", "temporal-k8s-history", "temporal-k8s-matching", "temporal-k8s-worker"]
 ALL_CONFIG = ["frontend", "history", "matching", "worker"]
