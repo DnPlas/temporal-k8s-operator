@@ -133,17 +133,13 @@ jobs:
               'Analyze this issue and respond ONLY with valid JSON (no markdown, no preamble):',
               '{',
               '  "complexity": "trivial|low|medium|high|critical",',
-              '  "category": "operator|crd|k8s-integration|temporal|documentation|testing",',
               '  "confidence": "high|medium|low",',
-              '  "priority": "highest|high|medium|low|lowest",',
               '  "auto_resolve_eligible": true|false,',
               '  "risk_level": "low|medium|high",',
-              '  "solution_approach": "Brief description of solution approach",',
-              '  "reasoning": "Why you chose these classifications",',
-              '  "context_rules_applied": ["rules from TRIAGING_RULES.md that influenced the decision"],',
+              '  "summary": "2-3 sentence plain-language summary of what the issue is about",',
+              '  "time_estimate_pulses": <number, where 1 pulse = 2 weeks. Use 0.25 for a few hours, 0.5 for ~1 week, 1 for a full sprint, etc.>,',
               '  "similar_patterns": ["patterns from REPO_PATTERNS.md that match"],',
-              '  "affected_areas": ["predicted files or components"],',
-              '  "recommended_assignee": "team or person based on code ownership"',
+              '  "affected_areas": ["predicted files or components"]',
               '}'
             ].join('\n');
 
@@ -214,23 +210,23 @@ jobs:
               : '- No exact pattern match (new pattern type)';
             const affectedAreas = analysis.affected_areas.map(a => `- \`${a}\``).join('\n');
 
+            const pulses = analysis.time_estimate_pulses;
+            const pulseLabel = pulses < 1 ? `${pulses} pulses (~${Math.round(pulses * 2)} week${pulses * 2 === 1 ? '' : 's'})` : `${pulses} pulse${pulses === 1 ? '' : 's'} (~${pulses * 2} weeks)`;
+
             const body = [
               MARKER,
               '## AI Pre-Analysis',
               '',
+              analysis.summary,
+              '',
               `**Complexity:** ${analysis.complexity}`,
               `**Confidence:** ${analysis.confidence} (${confidenceRange})`,
               `**Risk Level:** ${analysis.risk_level}`,
+              `**Estimated effort:** ${pulseLabel}`,
               `**Auto-Resolve Eligible:** ${analysis.auto_resolve_eligible ? 'Yes' : 'No'}`,
               '',
               '### Matching Historical Patterns',
               patternsMatched,
-              '',
-              '### Solution Approach',
-              analysis.solution_approach,
-              '',
-              '### Reasoning',
-              analysis.reasoning,
               '',
               '### Predicted Affected Areas',
               affectedAreas,
