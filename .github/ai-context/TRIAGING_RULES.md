@@ -115,10 +115,11 @@ Severity must be derived strictly from the four factors below. Do not assess it 
 
 Only two labels are applied automatically. Do not introduce others without team agreement.
 
-| label               | meaning                                                       |
-|---------------------|---------------------------------------------------------------|
+| label                | meaning                                                       |
+|----------------------|---------------------------------------------------------------|
 | `needs-human-review` | default for all issues; a human must assess and act          |
 | `needs-copilot`      | AI assessed as auto-eligible; assign Copilot from the sidebar |
+| `severity:critical`  | applied in addition to the above when severity level is critical; use to filter urgent issues |
 
 ### Copilot assignment
 GitHub does not expose a public API for triggering the Copilot coding agent programmatically.

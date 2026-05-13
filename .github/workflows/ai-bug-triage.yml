@@ -194,11 +194,14 @@ jobs:
             const analysis = JSON.parse(Buffer.from(process.env.ANALYSIS_B64, 'base64').toString());
             const issueNumber = ${{ matrix.issue }};
 
+            const labels = ['needs-human-review'];
+            if (analysis.severity?.level === 'critical') labels.push('severity:critical');
+
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              labels: ['needs-human-review']
+              labels
             });
 
             // Idempotent comment: update existing AI analysis comment if one exists,
