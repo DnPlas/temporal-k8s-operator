@@ -270,7 +270,6 @@ jobs:
         uses: actions/github-script@v7
         env:
           ANALYSIS_B64: ${{ steps.analyze.outputs.analysis_b64 }}
-          GH_PAT: ${{ secrets.GH_PAT }}
         with:
           script: |
             const analysis = JSON.parse(Buffer.from(process.env.ANALYSIS_B64, 'base64').toString());
@@ -315,30 +314,7 @@ jobs:
               labels: ['auto-resolution-requested']
             });
 
-            // GITHUB_TOKEN is github-actions[bot], which holds no Copilot seat.
-            // GitHub silently drops the assignment. Use a user PAT (GH_PAT secret)
-            // so the request is made on behalf of a human account that has the seat.
-            const assignRes = await fetch(
-              `https://api.github.com/repos/${context.repo.owner}/${context.repo.repo}/issues/${issueNumber}/assignees`,
-              {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${process.env.GH_PAT}`,
-                  'Accept': 'application/vnd.github+json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ assignees: ['Copilot'] })
-              }
-            );
-
-            if (!assignRes.ok) {
-              core.warning(`Copilot assignment API call failed: ${assignRes.status} ${await assignRes.text()}`);
-            } else {
-              const assignData = await assignRes.json();
-              const assigned = assignData.assignees.map(a => a.login);
-              if (assigned.map(l => l.toLowerCase()).includes('copilot')) {
-                console.log(`Issue #${issueNumber} successfully assigned to Copilot`);
-              } else {
-                core.warning(`Copilot assignment silently dropped — returned assignees: [${assigned.join(', ')}]`);
-              }
-            }
+            // The Copilot coding agent cannot be assigned programmatically via the
+            // REST API — GitHub's public assignees endpoint silently drops it regardless
+            // of token type. Assignment must be done manually from the issue sidebar.
+            console.log(`Issue #${issueNumber} marked auto-resolution-requested. Assign Copilot manually from the issue sidebar to trigger the coding agent.`);
