@@ -168,17 +168,17 @@ jobs:
             const cleanJson = analysisText.replace(/```json\n?|\n?```/g, '').trim();
             const analysis = JSON.parse(cleanJson);
 
-            core.setOutput('analysis_json', JSON.stringify(analysis));
+            core.setOutput('analysis_b64', Buffer.from(JSON.stringify(analysis)).toString('base64'));
             console.log(`Issue #${issueNumber} analysis complete:`, analysis);
             return analysis;
 
       - name: Apply Labels and Post Comment
         uses: actions/github-script@v7
         env:
-          ANALYSIS_JSON: ${{ steps.analyze.outputs.analysis_json }}
+          ANALYSIS_B64: ${{ steps.analyze.outputs.analysis_b64 }}
         with:
           script: |
-            const analysis = JSON.parse(process.env.ANALYSIS_JSON);
+            const analysis = JSON.parse(Buffer.from(process.env.ANALYSIS_B64, 'base64').toString());
             const issueNumber = ${{ matrix.issue }};
 
             // Two labels only: priority (for filtering) + review status (for action).
@@ -265,10 +265,10 @@ jobs:
       - name: Request Auto-Fix (if eligible)
         uses: actions/github-script@v7
         env:
-          ANALYSIS_JSON: ${{ steps.analyze.outputs.analysis_json }}
+          ANALYSIS_B64: ${{ steps.analyze.outputs.analysis_b64 }}
         with:
           script: |
-            const analysis = JSON.parse(process.env.ANALYSIS_JSON);
+            const analysis = JSON.parse(Buffer.from(process.env.ANALYSIS_B64, 'base64').toString());
             const issueNumber = ${{ matrix.issue }};
 
             const { data: issue } = await github.rest.issues.get({
