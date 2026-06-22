@@ -7,6 +7,8 @@ import logging
 
 import pytest
 import pytest_asyncio
+from pytest_operator.plugin import OpsTest
+
 from conftest import POSTGRESQL_CHANNEL, TEMPORAL_CHANNEL
 from helpers import (
     APP_NAME,
@@ -17,7 +19,6 @@ from helpers import (
     create_default_namespace,
     run_sample_workflow,
 )
-from pytest_operator.plugin import OpsTest
 
 logger = logging.getLogger(__name__)
 

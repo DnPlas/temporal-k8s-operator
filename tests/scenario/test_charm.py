@@ -300,14 +300,11 @@ def test_frontend_certificates_relation(
     client_provider_certificate.certificate = mocked_certificate
     requirer_private_key = MagicMock(PrivateKey)
 
-    with context(
-        context.on.relation_changed(frontend_certificates_relation), state=new_state
-    ) as manager, unittest.mock.patch(
-        "charm.TemporalK8SCharm._update_certificates_required", return_value=True
-    ), unittest.mock.patch(
-        "charm.TemporalK8SCharm._store_certificate"
-    ), unittest.mock.patch(
-        "charm.TemporalK8SCharm._store_private_key"
+    with (
+        context(context.on.relation_changed(frontend_certificates_relation), state=new_state) as manager,
+        unittest.mock.patch("charm.TemporalK8SCharm._update_certificates_required", return_value=True),
+        unittest.mock.patch("charm.TemporalK8SCharm._store_certificate"),
+        unittest.mock.patch("charm.TemporalK8SCharm._store_private_key"),
     ):
         # Required mocks
         manager.charm.certificates.get_assigned_certificate = MagicMock(

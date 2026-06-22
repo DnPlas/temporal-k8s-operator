@@ -8,6 +8,7 @@ import pathlib
 
 import jubilant
 import pytest
+
 from helpers import APP_NAME, APP_NAME_ADMIN, APP_NAME_UI
 
 logger = logging.getLogger(__name__)

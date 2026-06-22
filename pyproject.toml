@@ -22,28 +22,50 @@ show_missing = true
 minversion = "6.0"
 log_cli_level = "INFO"
 
-# Formatting tools configuration
-[tool.black]
+# Formatting and linting tools configuration
+[tool.ruff]
+preview = true
+target-version = "py310"
+src = ["src", "tests"]
 line-length = 120
-# Black does not support py312, use py311
-target-version = ["py311"]
 
-[tool.isort]
-profile = "black"
+[tool.ruff.lint]
+explicit-preview-rules = true
+select = [
+    "A",
+    "E",
+    "W",
+    "F",
+    "C",
+    "N",
+    "D",
+    "I",
+    "B",
+    "CPY001",
+    "RUF",
+    "UP",
+]
+ignore = [
+    "D107",  # Missing docstring in __init__
+    "D417",  # Missing argument descriptions (not required for self/cls)
+    "E501",  # Line too long
+]
 
-# Linting tools configuration
-[tool.flake8]
-max-line-length = 120
-max-doc-length = 99
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D1", "D417", "S"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["helpers", "conftest", "temporal_client"]
+
+[tool.ruff.lint.flake8-copyright]
+author = "Canonical Ltd."
+notice-rgx = "Copyright\\s\\d{4}([-,]\\d{4})*\\s+"
+
+[tool.ruff.lint.mccabe]
 max-complexity = 10
-exclude = [".git", "__pycache__", ".tox", "build", "dist", "*.egg_info", "venv"]
-select = ["E", "W", "F", "C", "N", "R", "D", "H"]
-ignore = ["W503", "E501", "D107"]
-per-file-ignores = ["tests/*:D100,D101,D102,D103,D104"]
-docstring-convention = "google"
-copyright-check = "True"
-copyright-author = "Canonical Ltd."
-copyright-regexp = "Copyright\\s\\d{4}([-,]\\d{4})*\\s+%(author)s"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [project.optional-dependencies]
 # Runtime deps baked into the charm
@@ -90,29 +112,13 @@ integration = [
 
 # Static analysis / linting
 lint = [
-    "mypy",
-    "pylint",
-    "pydocstyle",
-    "pytest",
-    "black==23.12.1",
     "codespell==2.2.5",
-    "flake8==7.0.0",
-    "flake8-builtins==1.5.3",
-    "flake8-copyright==0.2.4",
-    "flake8-docstrings==1.6.0",
-    "isort==5.12.0",
-    "pep8-naming==0.13.2",
-    "pyproject-flake8==7.0.0",
-    "flake8-docstrings-complete>=1.0.3",
-    "flake8-test-docs>=1.0",
-    "types-requests",
-    "types-PyYAML",
+    "ruff>=0.8.0",
 ]
 
 # Formatting
 fmt = [
-    "black==23.12.1",
-    "isort==5.12.0",
+    "ruff>=0.8.0",
 ]
 
 dev = [

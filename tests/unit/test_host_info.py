@@ -4,6 +4,7 @@
 """Unit tests for the temporal_host_info charm library."""
 
 import dataclasses
+from typing import ClassVar
 
 import ops
 import ops.testing
@@ -29,11 +30,11 @@ class ProviderCharm(ops.CharmBase):
         CONFIG: Charm config options for services and external-hostname.
     """
 
-    META = {
+    META: ClassVar = {
         "name": "provider-charm",
         "provides": {RELATION_NAME: {"interface": RELATION_NAME}},
     }
-    CONFIG = {
+    CONFIG: ClassVar = {
         "options": {
             "services": {"type": "string", "default": "frontend"},
             "external-hostname": {"type": "string", "default": ""},
@@ -58,7 +59,7 @@ class RequirerCharm(ops.CharmBase):
         META: Charm metadata defining the temporal-host-info relation.
     """
 
-    META = {
+    META: ClassVar = {
         "name": "requirer-charm",
         "requires": {RELATION_NAME: {"interface": RELATION_NAME, "limit": 1}},
     }
@@ -348,7 +349,7 @@ class TestTemporalHostInfoRequirer:
             ],
         )
 
-        with pytest.raises(RuntimeError, match="Multiple.*not supported"):
+        with pytest.raises(RuntimeError, match=r"Multiple.*not supported"):
             requirer_context.run(requirer_context.on.config_changed(), state)
 
     def test_requirer_host_property_returns_none_when_no_relation(

@@ -6,7 +6,6 @@
 
 import asyncio
 from datetime import timedelta
-from typing import List
 
 from temporalio import workflow
 
@@ -42,14 +41,14 @@ class GreetingWorkflow:
         self._exit = False
 
     @workflow.run
-    async def run(self) -> List[str]:
+    async def run(self) -> list[str]:
         """Workflow execution method.
 
         Returns:
             Workflow execution result.
         """
         # Continually handle from queue or wait for exit to be received
-        greetings: List[str] = []
+        greetings: list[str] = []
         while True:
             # Wait for queue item or exit
             await workflow.wait_condition(lambda: not self._pending_greetings.empty() or self._exit)

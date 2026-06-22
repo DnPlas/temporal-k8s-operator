@@ -9,7 +9,7 @@ import pytest
 from charm import TemporalK8SCharm
 
 
-def pytest_configure(config):  # noqa: DCO020
+def pytest_configure(config):
     """Flags that can be configured to modify fixture behavior.
 
     Used to determine how _state in the peer relation app databag is populated.
@@ -72,22 +72,20 @@ def temporal_container_initialized(log_dir_execs):
         execs=log_dir_execs,
         check_infos=[ops.testing.CheckInfo("temporal-server-running")],
         layers={
-            "initialized-layer": ops.pebble.Layer(
-                {
-                    "checks": {
-                        "temporal-server-running": ops.pebble.CheckDict(
-                            exec=ops.pebble.ExecDict(
-                                command="temporal operator cluster health --address=temporal-k8s:7236",
-                            ),
-                            level=None,
-                            override="replace",
-                            period="300s",
-                            startup=ops.pebble.CheckStartup.ENABLED,
-                            threshold=3,
+            "initialized-layer": ops.pebble.Layer({
+                "checks": {
+                    "temporal-server-running": ops.pebble.CheckDict(
+                        exec=ops.pebble.ExecDict(
+                            command="temporal operator cluster health --address=temporal-k8s:7236",
                         ),
-                    },
-                }
-            ),
+                        level=None,
+                        override="replace",
+                        period="300s",
+                        startup=ops.pebble.CheckStartup.ENABLED,
+                        threshold=3,
+                    ),
+                },
+            }),
         },
     )
 
@@ -195,16 +193,14 @@ def postgres_visibility_data():
 @pytest.fixture(scope="function")
 def tls_certificates_data():
     return {
-        "certificates": json.dumps(
-            [
-                {
-                    "ca": "some-ca-cert",
-                    "certificate_signing_request": "some-csr",
-                    "certificate": "some-cert",
-                    "chain": ["some-chain", "some-other-val"],
-                }
-            ]
-        )
+        "certificates": json.dumps([
+            {
+                "ca": "some-ca-cert",
+                "certificate_signing_request": "some-csr",
+                "certificate": "some-cert",
+                "chain": ["some-chain", "some-other-val"],
+            }
+        ])
     }
 
 
@@ -243,29 +239,25 @@ def peer_relation(request, s3_config, openfga_store_id, openfga_secret):
     state_data["database_connections"] = json.dumps(database_connections_data)
 
     if not request.node.get_closest_marker("s3_relation_skipped"):
-        state_data["s3"] = json.dumps(
-            {
-                "bucket": s3_config["bucket"],
-                "endpoint": "s3.us-east-2.amazonaws.com",
-                "region": s3_config["region"],
-                "aws_access_key_id": s3_config["access-key"],
-                "aws_secret_access_key": s3_config["secret-key"],
-                "uri_style": s3_config["s3-uri-style"],
-                "bucket_created": True,
-            }
-        )
+        state_data["s3"] = json.dumps({
+            "bucket": s3_config["bucket"],
+            "endpoint": "s3.us-east-2.amazonaws.com",
+            "region": s3_config["region"],
+            "aws_access_key_id": s3_config["access-key"],
+            "aws_secret_access_key": s3_config["secret-key"],
+            "uri_style": s3_config["s3-uri-style"],
+            "bucket_created": True,
+        })
 
     if not request.node.get_closest_marker("openfga_uninitialized"):
-        state_data["openfga"] = json.dumps(
-            {
-                "store_id": openfga_store_id,
-                "token": openfga_secret.id,
-                "address": "127.0.0.1",
-                "port": "8080",
-                "scheme": "http",
-                "auth_model_id": None if request.node.get_closest_marker("openfga_auth_skipped") else "123",
-            }
-        )
+        state_data["openfga"] = json.dumps({
+            "store_id": openfga_store_id,
+            "token": openfga_secret.id,
+            "address": "127.0.0.1",
+            "port": "8080",
+            "scheme": "http",
+            "auth_model_id": None if request.node.get_closest_marker("openfga_auth_skipped") else "123",
+        })
 
     return ops.testing.PeerRelation(endpoint="peer", local_app_data=state_data)
 

@@ -9,6 +9,8 @@ import time
 import pytest
 import pytest_asyncio
 import requests
+from pytest_operator.plugin import OpsTest
+
 from conftest import POSTGRESQL_CHANNEL, TEMPORAL_CHANNEL
 from helpers import (
     APP_NAME,
@@ -20,7 +22,6 @@ from helpers import (
     perform_temporal_integrations,
     run_sample_workflow,
 )
-from pytest_operator.plugin import OpsTest
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ class TestUpgrade:
         # services attempt to connect to the cluster before the application is ready.
         # Use CLI directly to support --base parameter for 22.04→24.04 platform upgrade
         model_name = ops_test.model.name
-        retcode, stdout, stderr = await ops_test.juju(
+        retcode, _stdout, stderr = await ops_test.juju(
             "refresh",
             APP_NAME,
             "--path",

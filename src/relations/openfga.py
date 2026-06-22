@@ -315,9 +315,10 @@ class OpenFGA(framework.Object):
         results = {key: [] for key in admin_groups}
 
         if admin_groups == [""]:
-            event.set_results(
-                {"result": "command succeeded", "output": "no admin groups set in 'auth-admin-groups' config"}
-            )
+            event.set_results({
+                "result": "command succeeded",
+                "output": "no admin groups set in 'auth-admin-groups' config",
+            })
 
         try:
             for admin_group in admin_groups:
@@ -401,12 +402,10 @@ class OpenFGA(framework.Object):
                     event=event, openfga_data=openfga_data, body=body, op_type=OFGAOperationType.WRITE
                 )
                 logger.info(f"openfga: operation type {action_type!r} for user {user!r} on group {group!r} successful")
-                event.set_results(
-                    {
-                        "result": "command succeeded",
-                        "output": f"operation type {action_type!r} for user {user!r} on group {group!r} successful",
-                    }
-                )
+                event.set_results({
+                    "result": "command succeeded",
+                    "output": f"operation type {action_type!r} for user {user!r} on group {group!r} successful",
+                })
                 return
             except ApiException as e:
                 event.fail(f"failed to perform ofga operation: {e}")
@@ -435,12 +434,10 @@ class OpenFGA(framework.Object):
                 logger.info(
                     f"openfga: operation type {action_type!r} for group {group!r} and role {role!r} on namespace {namespace!r} successful"
                 )
-                event.set_results(
-                    {
-                        "result": "command succeeded",
-                        "output": f"operation type {action_type!r} for group {group!r} and role {role!r} on namespace {namespace!r} successful",
-                    }
-                )
+                event.set_results({
+                    "result": "command succeeded",
+                    "output": f"operation type {action_type!r} for group {group!r} and role {role!r} on namespace {namespace!r} successful",
+                })
                 return
             except ApiException as e:
                 event.fail(f"failed to perform ofga operation: {e}")
